@@ -20,7 +20,7 @@ Readable: code well-documented and human-readable.
 
 Performant: optimized for maximal performance.
 
-### IFAQ (InFrequently Asked Questions):
+### IFAQ (Infrequently Asked Questions):
 
 Q: Why C++/WxWidgets not Python or a webapp?
 
@@ -33,7 +33,6 @@ Requires C++11, wxWidgets and Cairo.
 
 ### Linux
 Tested on Arch Linux.
-
 ```
 mkdir build
 cd build
@@ -50,15 +49,19 @@ Tested in Visual Studio 2022 running on Windows 11.
 
 Recommended: use vcpkg to install Cairo and just use the installer for wxWidgets.
 
-Create build directory and cd into it.
+Create build directory and cd into it (not sure if the VCPKG argument is needed).
 ```
 cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake
 ```
-Then: Change from console application to Windows Application
+In VS: Change from console application to Windows (Linker->System->SubSystem)
 
-Add AMD dpi manifest (Manifest Tool->Input and Output) %WX%/include/wx/msw/wx_dpi_aware.manifest
+To fix blurry UI: add AMD dpi manifest (Manifest Tool->Input and Output) `%WXWIN%/include/wx/msw/wx_dpi_aware.manifest`
 
-Should work properly.
+## Running
+To load a database at startup:
+```
+./crossword-gui -d path_to_database
+```
 
 ## *Building (Web)
 

@@ -25,7 +25,7 @@
 #include "crossword/clue.hpp"
 
 namespace crossword_backend {
-  class DatabaseEntry;
+  struct DatabaseEntry;
 
   struct TrieNode {
 

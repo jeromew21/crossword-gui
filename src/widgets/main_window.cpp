@@ -12,6 +12,8 @@
 #include "widgets/main_window.hpp"
 #include "widgets/dialog.hpp"
 
+#include "widgets/icon.xpm"
+
 #include <thread>
 
 using namespace crossword_backend;
@@ -51,6 +53,9 @@ CrosswordApp::CrosswordApp(MainWindowOptions const &options)
   if (options.silent) {
     crossword.logger.Silence();
   }
+
+  wxIcon icon(icon_xpm);
+  SetIcon(icon);
 
   CentreOnScreen();
   if (options.db) {
