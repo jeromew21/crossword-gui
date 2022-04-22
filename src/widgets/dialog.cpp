@@ -71,7 +71,7 @@ int WordListDialog::GetSelection() {
  * 
  * @param words vector of DatabaseEntry objects.
  */
-WordListDialog::WordListDialog(std::vector<DatabaseEntry> words)
+WordListDialog::WordListDialog(std::vector<Word> words)
         : wxDialog(
         NULL,
         -1,
@@ -85,9 +85,9 @@ WordListDialog::WordListDialog(std::vector<DatabaseEntry> words)
 
   wxString choices[MAX_CHOICES];
   std::size_t list_size = std::min(MAX_CHOICES, words.size());
-  //TODO: shuffle
+
   for (std::size_t i = 0; i < list_size; i++) {
-    choices[i] = words[i].entry.ToString() + " (" + std::to_string(words[i].frequency_score) + ")";
+    choices[i] = words[i].ToString();
   }
 
   lb = new wxListBox(panel, -1,

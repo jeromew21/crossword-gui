@@ -50,7 +50,7 @@ class WordListDialog : public wxDialog {
 public:
   int GetSelection();
 
-  WordListDialog(std::vector<crossword_backend::DatabaseEntry> words);
+  WordListDialog(std::vector<crossword_backend::Word> words);
 
 private:
   wxListBox *lb;

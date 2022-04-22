@@ -356,18 +356,13 @@ void CrosswordApp::OnFillWord(wxCommandEvent &) {
   int clue_size = GetCurrentClue().GetSize();
   if (clue_size > 0) {
     Clue clue = GetCurrentClue();
-    std::vector<DatabaseEntry> solutions = db.GetSolutions(clue, kNO_NUMBER, 1);
+    std::vector<Word> solutions = db.GetSolutions(clue, kNO_NUMBER, 1);
     if (solutions.size() > 0) {
-      // sort choices descending
-      std::sort(solutions.begin(), solutions.end(), [](const DatabaseEntry &lhs, const DatabaseEntry &rhs) {
-        return lhs.frequency_score > rhs.frequency_score;
-      });
-
       WordListDialog *dialog = new WordListDialog(solutions);
       if (dialog->ShowModal() == wxID_OK) {
         int sel = dialog->GetSelection();
         if (sel != wxNOT_FOUND) {
-          crossword.SetClue(GetCurrentClue(), solutions[sel].entry);
+          crossword.SetClue(GetCurrentClue(), solutions[sel]);
         }
       }
       dialog->Destroy();

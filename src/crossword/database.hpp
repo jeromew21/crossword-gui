@@ -34,7 +34,7 @@ namespace crossword_backend {
   struct TrieNode : public Obj {
     Atom value;
     std::vector<std::unique_ptr<TrieNode>> children;
-    TrieNode* parent;
+    TrieNode *parent;
 
     void AddChild(const Atom child_value);
 
@@ -48,7 +48,7 @@ namespace crossword_backend {
 
     std::string ReprString() const override;
 
-    explicit TrieNode(const Atom value, TrieNode* parent) : value{value}, parent{parent} {};
+    explicit TrieNode(const Atom value, TrieNode *parent) : value{value}, parent{parent} {};
   };
 
   /**
@@ -61,6 +61,8 @@ namespace crossword_backend {
     std::unique_ptr<TrieNode> root;
 
     void Insert(Word const &entry);
+
+    std::vector<Word> Find(Word const &partial) const { return root->Find(partial, 0); }
 
     std::string ReprString() const override {
       return root->ReprString();
@@ -165,7 +167,7 @@ namespace crossword_backend {
    */
   class FixedSizeWordDatabase {
   public:
-    std::vector<DatabaseEntry> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
+    std::vector<Word> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
 
     void AddEntry(Word const &entry, const int frequency_score, const int letter_score);
 
@@ -173,7 +175,7 @@ namespace crossword_backend {
 
     bool ContainsEntry(Word const &word) const;
 
-    int GetFrequencyScore(Word const &word);
+    int GetFrequencyScore(Word const &word) const;
 
     void NormalizeFrequencyScores();
 
@@ -243,7 +245,7 @@ namespace crossword_backend {
 
     bool HasSolution(Clue const &clue, const int score_min);
 
-    int GetFrequencyScore(Word const &word);
+    int GetFrequencyScore(Word const &word) const;
 
     int GetLetterScore(Word const &word) const;
 
@@ -253,7 +255,7 @@ namespace crossword_backend {
 
     void FlushCaches();
 
-    std::vector<DatabaseEntry> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
+    std::vector<Word> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
 
     WordDatabase();
 

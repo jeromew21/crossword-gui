@@ -166,7 +166,7 @@ Crossword::GetWordFills(std::vector<Clue> const &all_clues, AutofillParams const
     if (clue_it->IsFilled())
       continue;
 
-    std::vector<DatabaseEntry> sols = db.GetSolutions(*clue_it, kNO_NUMBER, score_min);
+    std::vector<Word> sols = db.GetSolutions(*clue_it, kNO_NUMBER, score_min);
     // assume sorted; should be guranteed...
 
     // Apply randomness as parameterized by entropy
@@ -176,7 +176,7 @@ Crossword::GetWordFills(std::vector<Clue> const &all_clues, AutofillParams const
     std::shuffle(std::begin(sols), std::begin(sols) + shuffle_count, rng);
 
     for (auto entry = std::begin(sols); entry != std::end(sols); ++entry) {
-      CrosswordActionGroup *group = new CrosswordActionGroup(*this, *clue_it, entry->entry);
+      CrosswordActionGroup *group = new CrosswordActionGroup(*this, *clue_it, *entry);
       actions.push_back(group);
 
       if (limit != kNO_NUMBER && i >= limit)

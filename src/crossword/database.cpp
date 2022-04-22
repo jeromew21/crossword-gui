@@ -151,9 +151,9 @@ void WordDatabase::AddEntry(Word const &entry, const int frequency_score, const 
  * @param word
  * @return int
  */
-int FixedSizeWordDatabase::GetFrequencyScore(Word const &word) {
+int FixedSizeWordDatabase::GetFrequencyScore(Word const &word) const {
   assert(ContainsEntry(word));
-  return word_set_[word];
+  return word_set_.find(word)->second;
 }
 
 /**
@@ -162,7 +162,7 @@ int FixedSizeWordDatabase::GetFrequencyScore(Word const &word) {
  *
  * @param word
  */
-int WordDatabase::GetFrequencyScore(Word const &word) {
+int WordDatabase::GetFrequencyScore(Word const &word) const {
   return databases_[word.size()].GetFrequencyScore(word);
 }
 
@@ -243,7 +243,7 @@ void FixedSizeWordDatabase::NormalizeFrequencyScores() {
  * @param score_min
  * @return std::vector<Word>
  */
-std::vector<DatabaseEntry> WordDatabase::GetSolutions(Clue const &clue, const int limit, const int score_min) const {
+std::vector<Word> WordDatabase::GetSolutions(Clue const &clue, const int limit, const int score_min) const {
   return databases_[clue.GetSize()].GetSolutions(clue, limit, score_min);
 }
 
@@ -252,7 +252,6 @@ std::vector<DatabaseEntry> WordDatabase::GetSolutions(Clue const &clue, const in
  *
  * 60% hotspot.
  * 
- * TODO: Modified/Generalized Trie lookup? Instead of comparing linearly with Clue.FitsWord
  * TODO: do we want to return words instead of entries... do we need to pull entire entry as well as word???
  *
  * @param clue
@@ -260,24 +259,32 @@ std::vector<DatabaseEntry> WordDatabase::GetSolutions(Clue const &clue, const in
  * @param score_min
  * @return std::vector<DatabaseEntry>
  */
-std::vector<DatabaseEntry>
+std::vector<Word>
 FixedSizeWordDatabase::GetSolutions(Clue const &clue, const int limit, const int score_min) const {
-  std::vector<DatabaseEntry> vec;
-  if (limit != kNO_NUMBER) {
-    vec.reserve(limit);
-  } else {
-    vec.reserve(100); //TODO: test performance?
+//  std::vector<DatabaseEntry> vec;
+//  if (limit != kNO_NUMBER) {
+//    vec.reserve(limit);
+//  } else {
+//    vec.reserve(100); //TODO: test performance?
+//  }
+//  std::size_t entry_count = entries_.size();
+//  for (std::size_t i = 0; i < entry_count; ++i) {
+//    DatabaseEntry const &entry = entries_[i];
+//    if (entry.frequency_score >= score_min && clue.FitsWord(entry.entry)) {
+//      vec.push_back(entry);
+//    }
+//    if (limit != kNO_NUMBER && i >= (std::size_t) limit)
+//      break;
+//  }
+//  return vec;
+  std::vector<Word> all_solutions = trie_.Find(clue.ToWord());
+  std::vector<Word> passing_solutions{};
+
+  for (auto const &solution_word : all_solutions) {
+    if (GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);
   }
-  std::size_t entry_count = entries_.size();
-  for (std::size_t i = 0; i < entry_count; ++i) {
-    DatabaseEntry const &entry = entries_[i];
-    if (entry.frequency_score >= score_min && clue.FitsWord(entry.entry)) {
-      vec.push_back(entry);
-    }
-    if (limit != kNO_NUMBER && i >= (std::size_t) limit)
-      break;
-  }
-  return vec;
+
+  return passing_solutions;
 }
 
 /**
@@ -361,9 +368,6 @@ void WordDatabase::LoadFromFile(std::string const &filename) {
     databases_[i].NormalizeFrequencyScores();
     std::sort(databases_[i].entries_.begin(), databases_[i].entries_.end());
     std::reverse(databases_[i].entries_.begin(), databases_[i].entries_.end());
-    if (i==3){
-      std::cout << databases_[i].trie_.ReprString();
-    }
   }
   is_finished_loading_ = true;
 }
