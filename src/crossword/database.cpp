@@ -103,9 +103,10 @@ int WordDatabase::GetLetterScore(Word const &word) const {
  */
 void FixedSizeWordDatabase::AddEntry(Word const &entry, const int frequency_score, const int letter_score) {
   assert(entry.size() == size_);
-  entries_.push_back(DatabaseEntry(entry, frequency_score, letter_score));
+  auto db_entry = DatabaseEntry(entry, frequency_score, letter_score);
+  entries_.push_back(db_entry);
   word_set_[entry] = frequency_score;
-  //TRIE ADDITION
+  trie_.Insert(db_entry.entry);
 }
 
 /**
@@ -360,6 +361,9 @@ void WordDatabase::LoadFromFile(std::string const &filename) {
     databases_[i].NormalizeFrequencyScores();
     std::sort(databases_[i].entries_.begin(), databases_[i].entries_.end());
     std::reverse(databases_[i].entries_.begin(), databases_[i].entries_.end());
+    if (i==3){
+      std::cout << databases_[i].trie_.ReprString();
+    }
   }
   is_finished_loading_ = true;
 }

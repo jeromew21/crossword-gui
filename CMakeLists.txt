@@ -9,7 +9,6 @@ find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)
 include(${wxWidgets_USE_FILE})
 
 include_directories(src)
-include_directories(src/crossword)
 
 add_executable(crossword-gui
         src/widgets/main_entry.cpp
@@ -26,9 +25,9 @@ add_executable(crossword-gui
         src/crossword/crossword_action.cpp
         src/crossword/crossword_serialization.cpp
         src/crossword/database.cpp
+        src/crossword/trie.cpp
         src/crossword/logging.cpp
         src/crossword/search.cpp
-        src/crossword/crossword.cpp
-        )
+        src/crossword/crossword.cpp)
 
 target_link_libraries(crossword-gui ${wxWidgets_LIBRARIES} ${CAIRO_LIBRARIES})

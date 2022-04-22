@@ -20,6 +20,7 @@
 #include <mutex>
 #include <atomic>
 #include <unordered_map>
+#include <memory>
 
 #include "crossword/word.hpp"
 #include "crossword/clue.hpp"
@@ -27,8 +28,27 @@
 namespace crossword_backend {
   struct DatabaseEntry;
 
-  struct TrieNode {
+  /**
+   * @brief Node in a trie
+   */
+  struct TrieNode : public Obj {
+    Atom value;
+    std::vector<std::unique_ptr<TrieNode>> children;
+    TrieNode* parent;
 
+    void AddChild(const Atom child_value);
+
+    TrieNode *FindChild(const Atom queried_child) const;
+
+    bool IsTerminal() const { return children.empty(); }
+
+    Word LeafToWord() const;
+
+    std::vector<Word> Find(const Word &partial, std::size_t substr_start) const;
+
+    std::string ReprString() const override;
+
+    explicit TrieNode(const Atom value, TrieNode* parent) : value{value}, parent{parent} {};
   };
 
   /**
@@ -36,14 +56,21 @@ namespace crossword_backend {
    * from wildcard words.
    * 
    */
-  class WildcardTrie {
-    void Insert(const DatabaseEntry &entry);
+  class WordTrie : public Obj {
+  public:
+    std::unique_ptr<TrieNode> root;
 
-    std::vector<DatabaseEntry> Find(const Word &partial, std::size_t substr_start);
+    void Insert(Word const &entry);
+
+    std::string ReprString() const override {
+      return root->ReprString();
+    };
+
+    WordTrie() : root{std::make_unique<TrieNode>(TrieNode(Atom(), nullptr))} {};
   };
 
   /**
-   * @brief Hash map from word-> bool.
+   * @brief Hash map from (partial) word-> bool.
    *
    * Contains partial words. TODO: eviction policy.
    *
@@ -176,7 +203,7 @@ namespace crossword_backend {
      */
     WordHashMap partial_word_cache_;
 
-    WildcardTrie trie_;
+    WordTrie trie_;
 
     /**
      * @brief Contains ordered list of entries, ordered by letter score.
