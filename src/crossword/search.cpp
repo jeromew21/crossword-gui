@@ -136,7 +136,7 @@ Crossword::GetWordFills(std::vector<Clue> const &all_clues, AutofillParams const
   std::vector<Clue> clues = all_clues;
 
   // Sort by distance to upper left. TODO: put this in the GetClues method and cache it.
-  // TODO: manhatten or Euclidean? and break ties properly
+  // TODO: Manhattan or Euclidean? and break ties properly
   std::sort(clues.begin(), clues.end(), [](Clue const &clue_a, Clue const &clue_b) {
     Coord a = clue_a.GetStart();
     Coord b = clue_b.GetStart();
@@ -226,11 +226,10 @@ void Crossword::StopAutofill() {
  * @param params search parameters
  */
 void Crossword::Autofill(AutofillParams &params) {
-  auto all_clues = Clues();
   assert(params.db != NULL);
   assert(params.db->IsFinishedLoading());
   assert(IsValidPattern());
-  assert(IsInvalidPartial(all_clues, *params.db, 1) == Solvability::Solvable);
+  assert(IsInvalidPartial(Clues(), *params.db, 1) == Solvability::Solvable);
 
   logger.Log("Autofilling...");
 

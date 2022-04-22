@@ -51,16 +51,25 @@ bool FixedSizeWordDatabase::HasSolution(Clue const &clue, const int score_min) {
   if (count == 1) {
     return partial_word_cache_[clue_partial];
   }
-  for (auto it = std::begin(entries_); it != std::end(entries_); ++it) {
-    // BUG!!! cache loses score information
-    // for now just flush cache more often
-    if (it->frequency_score >= score_min && clue.FitsWord(it->entry)) {
-      partial_word_cache_.insert(clue_partial, true);
-      return true;
-    }
+
+  //Enter trie instead?
+  bool trie_contains_word = trie_.Contains(clue_partial);
+  if (trie_contains_word) {
+    partial_word_cache_.insert(clue_partial, true);
+    return true;
+  } else {
+    partial_word_cache_.insert(clue_partial, false);
+    return false;
   }
-  partial_word_cache_.insert(clue_partial, false);
-  return false;
+
+//  for (auto it = std::begin(entries_); it != std::end(entries_); ++it) {
+//    if (it->frequency_score >= score_min && clue.FitsWord(it->entry)) {
+//      partial_word_cache_.insert(clue_partial, true);
+//      return true;
+//    }
+//  }
+//  partial_word_cache_.insert(clue_partial, false);
+//  return false;
 }
 
 /**
@@ -250,9 +259,12 @@ std::vector<Word> WordDatabase::GetSolutions(Clue const &clue, const int limit, 
 /**
  * @brief Get solutions for a given clue, for a sub-database.
  *
- * 60% hotspot.
- * 
- * TODO: do we want to return words instead of entries... do we need to pull entire entry as well as word???
+ * No longer a hotspot, but does not order solutions properly.
+ *
+ * It is possible that for much longer words this performs worse than
+ * the naive search, due to recursion especially in cases
+ * where there are many leading wildcards. We may have to change this.
+ *
  *
  * @param clue
  * @param limit
@@ -261,28 +273,12 @@ std::vector<Word> WordDatabase::GetSolutions(Clue const &clue, const int limit, 
  */
 std::vector<Word>
 FixedSizeWordDatabase::GetSolutions(Clue const &clue, const int limit, const int score_min) const {
-//  std::vector<DatabaseEntry> vec;
-//  if (limit != kNO_NUMBER) {
-//    vec.reserve(limit);
-//  } else {
-//    vec.reserve(100); //TODO: test performance?
-//  }
-//  std::size_t entry_count = entries_.size();
-//  for (std::size_t i = 0; i < entry_count; ++i) {
-//    DatabaseEntry const &entry = entries_[i];
-//    if (entry.frequency_score >= score_min && clue.FitsWord(entry.entry)) {
-//      vec.push_back(entry);
-//    }
-//    if (limit != kNO_NUMBER && i >= (std::size_t) limit)
-//      break;
-//  }
-//  return vec;
   const Word clue_partial = clue.ToWord();
   std::vector<Word> all_solutions = trie_.Find(clue_partial);
   std::vector<Word> passing_solutions{};
 
   for (auto const &solution_word : all_solutions) {
-    if (true || GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);
+    if (GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);
   }
 
   return passing_solutions;
@@ -367,8 +363,6 @@ void WordDatabase::LoadFromFile(std::string const &filename) {
 
   for (std::size_t i = 0; i < kMAX_DIM; ++i) {
     databases_[i].NormalizeFrequencyScores();
-    std::sort(databases_[i].entries_.begin(), databases_[i].entries_.end());
-    std::reverse(databases_[i].entries_.begin(), databases_[i].entries_.end());
   }
   is_finished_loading_ = true;
 }

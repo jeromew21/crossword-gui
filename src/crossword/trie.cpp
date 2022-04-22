@@ -41,6 +41,31 @@ TrieNode *TrieNode::FindChild(const Atom queried_child) const {
   }
   return nullptr;
 }
+bool TrieNode::Contains(const Word &partial, std::size_t substr_start) const {
+  assert(substr_start < partial.size()); // OOB would be problematic...
+
+  const Atom target_child = partial[substr_start];
+  if (substr_start == partial.size() - 1) {
+    if (target_child.IsEmpty()) { // If final character is wildcard, true iff there is anything remaining.
+      return !IsTerminal();
+    } else {
+      TrieNode *child = FindChild(target_child);
+      return child != nullptr; // not found in children
+    }
+  }
+
+  if (target_child.IsEmpty()) { // If current is wildcard, true iff any sub-problems true
+    for (const auto &child_ptr: children) {
+      bool sub_value = child_ptr->Contains(partial, substr_start + 1);
+      if (sub_value) return true;
+    }
+    return false;
+  } else {
+    TrieNode *child = FindChild(target_child);
+    if (child == nullptr) return false;
+    return child->Contains(partial, substr_start + 1);
+  }
+}
 
 std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) const {
   assert(substr_start < partial.size()); // OOB would be problematic...
@@ -75,7 +100,7 @@ std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) 
     std::vector<Word> result{};
     return child->Find(partial, substr_start + 1);
   }
-};
+}
 
 /**
  * @brief Go from a leaf node to entire word.

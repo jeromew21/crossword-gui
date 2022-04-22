@@ -34,6 +34,10 @@ void CrosswordApp::InitMenuBar() {
           "&Export...", "Export to ???");
   menuFile->AppendSeparator();
   menuFile->Append(
+          ID_Load_Database,
+          "&Load Database...", "Add entries from CSV database");
+  menuFile->AppendSeparator();
+  menuFile->Append(
           ID_Open,
           "&Open...", "Open a file");
   menuFile->Append(
@@ -43,10 +47,7 @@ void CrosswordApp::InitMenuBar() {
           ID_Save_As,
           "&Save As...", "Save to a file");
   menuFile->AppendSeparator();
-  menuFile->Append(
-          ID_Load_Database,
-          "&Load Database...", "Add entries from CSV database");
-  menuFile->AppendSeparator();
+
   menuFile->Append(wxID_EXIT);
 
   menuEdit = new wxMenu;

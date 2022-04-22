@@ -31,10 +31,10 @@ namespace crossword_backend {
   /**
    * @brief Node in a trie
    */
-  struct TrieNode : public Obj {
+  struct TrieNode {
     Atom value;
-    std::vector<std::unique_ptr<TrieNode>> children;
     TrieNode *parent;
+    std::vector<std::unique_ptr<TrieNode>> children;
 
     TrieNode *AddChild(const Atom child_value);
 
@@ -45,8 +45,9 @@ namespace crossword_backend {
     Word LeafToWord() const;
 
     std::vector<Word> Find(const Word &partial, std::size_t substr_start) const;
+    bool Contains(const Word &partial, std::size_t substr_start) const;
 
-    std::string ReprString() const override;
+    std::string ReprString() const;
 
     explicit TrieNode(const Atom value, TrieNode *parent) : value{value}, parent{parent} {};
   };
@@ -63,6 +64,13 @@ namespace crossword_backend {
     void Insert(Word const &entry);
 
     std::vector<Word> Find(Word const &partial) const { return root->Find(partial, 0); }
+
+    /**
+     * @brief Quickly find if a word has no solution in the trie.
+     * @param partial
+     * @return
+     */
+    bool Contains(Word const &partial) const { return root->Contains(partial, 0); }
 
     std::string ReprString() const override {
       return root->ReprString();

@@ -480,7 +480,9 @@ void Crossword::SetDimensions(const std::size_t height, const std::size_t width)
  */
 void Crossword::LockCell(const Coord coord, const bool value) {
   assert(InBounds(coord));
+  DirtyClueStructure();
   grid_[coord.row][coord.col].Lock(value);
+  PopulateClueStructure();
 }
 
 /**
