@@ -226,8 +226,7 @@ std::string Clue::ReprString() const {
 bool Clue::IsSolved(WordDatabase &db) const {
   if (!IsFilled())
     return false;
-  Word word = ToWord();
-  return db.ContainsEntry(word);
+  return db.ContainsEntry(ToWord());
 }
 
 /**

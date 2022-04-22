@@ -406,7 +406,7 @@ void Crossword::PopulateClueStructure() {
  * 
  * @return std::vector<Clue> 
  */
-std::vector<Clue> Crossword::Clues() const {
+std::vector<Clue> const &Crossword::Clues() const {
   assert(clue_cache_.dirty == false);
   return clue_cache_.clues;
 }
@@ -474,6 +474,8 @@ void Crossword::SetDimensions(const std::size_t height, const std::size_t width)
 
 /**
  * @brief Lock or unlock a cell.
+ *
+ * TODO: incrementally update this as this is kind of dumb ATM
  *
  * @param coord
  * @param value

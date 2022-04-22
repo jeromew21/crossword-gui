@@ -252,7 +252,7 @@ namespace crossword_backend {
     std::size_t GetWidth() const { return width_; };
 
     /* Cached clues */
-    std::vector<Clue> Clues() const;
+    std::vector<Clue> const &Clues() const;
 
     std::vector<Clue> CluesStartingAt(const Coord coord) const;
 

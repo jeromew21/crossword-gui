@@ -259,7 +259,7 @@ std::vector<Word> WordDatabase::GetSolutions(Clue const &clue, const int limit, 
 /**
  * @brief Get solutions for a given clue, for a sub-database.
  *
- * No longer a hotspot, but does not order solutions properly.
+ * #1 hotspot for 5x5 puzzle.
  *
  * It is possible that for much longer words this performs worse than
  * the naive search, due to recursion especially in cases
@@ -275,7 +275,7 @@ std::vector<Word>
 FixedSizeWordDatabase::GetSolutions(Clue const &clue, const int limit, const int score_min) const {
   const Word clue_partial = clue.ToWord();
   std::vector<Word> all_solutions = trie_.Find(clue_partial);
-  std::vector<Word> passing_solutions{};
+  std::vector<Word> passing_solutions{}; //TODO: optimize; this method is still kinda chunky
 
   for (auto const &solution_word : all_solutions) {
     if (GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);

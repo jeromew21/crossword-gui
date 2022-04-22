@@ -131,7 +131,8 @@ Crossword::GetWordFills(std::vector<Clue> const &all_clues, AutofillParams const
 
   // TODO: move this to global
   auto rng = std::default_random_engine{};
-  rng.seed(static_cast<unsigned int>(time(0)));
+  //rng.seed(static_cast<unsigned int>(time(0)));
+  rng.seed(0); // deterministic for debugging
 
   std::vector<Clue> clues = all_clues;
 

@@ -30,11 +30,14 @@ namespace crossword_backend {
 
   /**
    * @brief Node in a trie
+   *
+   * TODO: optimize size by removing parent pointer?
    */
   struct TrieNode {
     Atom value;
-    TrieNode *parent;
     std::vector<std::unique_ptr<TrieNode>> children;
+    TrieNode *parent;
+    Word *leaf_word;
 
     TrieNode *AddChild(const Atom child_value);
 
@@ -42,14 +45,29 @@ namespace crossword_backend {
 
     bool IsTerminal() const { return children.empty(); }
 
-    Word LeafToWord() const;
+    Word &LeafToWord() const;
 
-    std::vector<Word> Find(const Word &partial, std::size_t substr_start) const;
+    std::vector<Word> Find(Word const &partial, std::size_t substr_start) const;
+
     bool Contains(const Word &partial, std::size_t substr_start) const;
 
     std::string ReprString() const;
 
-    explicit TrieNode(const Atom value, TrieNode *parent) : value{value}, parent{parent} {};
+    explicit TrieNode(const Atom value, TrieNode *parent) : value{value}, parent{parent} {
+      leaf_word = new Word();
+
+      Word traversed_word;
+
+      TrieNode *node = this;
+      while (node != nullptr && !node->value.IsEmpty()) {
+        Atom atom_value = node->value;
+        // node->leaf_word = nullptr; // intentional memory leak for now
+        traversed_word.atoms_.insert(traversed_word.atoms_.begin(), atom_value);
+        node = node->parent;
+      }
+
+      *leaf_word = traversed_word;
+    };
   };
 
   /**

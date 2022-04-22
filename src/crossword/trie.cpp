@@ -25,9 +25,9 @@ void WordTrie::Insert(Word const &entry) {
   }
 }
 
-TrieNode* TrieNode::AddChild(const Atom child_value) {
+TrieNode *TrieNode::AddChild(const Atom child_value) {
   assert(FindChild(child_value) == nullptr);
-  TrieNode* new_node = new TrieNode(child_value, this);
+  TrieNode *new_node = new TrieNode(child_value, this);
   children.push_back(std::unique_ptr<TrieNode>(new_node));
   return new_node;
 }
@@ -41,6 +41,7 @@ TrieNode *TrieNode::FindChild(const Atom queried_child) const {
   }
   return nullptr;
 }
+
 bool TrieNode::Contains(const Word &partial, std::size_t substr_start) const {
   assert(substr_start < partial.size()); // OOB would be problematic...
 
@@ -67,13 +68,22 @@ bool TrieNode::Contains(const Word &partial, std::size_t substr_start) const {
   }
 }
 
-std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) const {
+/**
+ * @brief Recursively returns all words in the trie that fit a particular
+ * partial query.
+ *
+ * @param partial
+ * @param substr_start
+ * @return std::vector<Word>
+ */
+std::vector<Word> TrieNode::Find(Word const &partial, std::size_t substr_start) const {
   assert(substr_start < partial.size()); // OOB would be problematic...
 
   const Atom target_child = partial[substr_start];
   if (substr_start == partial.size() - 1) {
     if (target_child.IsEmpty()) { // If final character is wildcard, just push everything
-      std::vector<Word> result{};
+      std::vector<Word> result;
+      result.reserve(children.size());
       for (const auto &child_leaf_ptr: children) {
         result.push_back(child_leaf_ptr->LeafToWord());
       }
@@ -81,23 +91,20 @@ std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) 
     } else {
       TrieNode *child = FindChild(target_child);
       if (child == nullptr) return {}; // not found in children
-      std::vector<Word> result{};
-      result.push_back(child->LeafToWord());
-      return result;
+      return {child->LeafToWord()};
     }
   }
 
   if (target_child.IsEmpty()) { // If current is wildcard, push everything
-    std::vector<Word> result{};
+    std::vector<Word> result;
     for (const auto &child_ptr: children) {
-      std::vector<Word> child_solutions = child_ptr->Find(partial, substr_start + 1);
+      std::vector<Word> const &child_solutions = child_ptr->Find(partial, substr_start + 1);
       result.insert(result.end(), child_solutions.begin(), child_solutions.end());
     }
     return result;
   } else { // Otherwise, just push subtree.
     TrieNode *child = FindChild(target_child);
     if (child == nullptr) return {};
-    std::vector<Word> result{};
     return child->Find(partial, substr_start + 1);
   }
 }
@@ -105,20 +112,14 @@ std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) 
 /**
  * @brief Go from a leaf node to entire word.
  *
+ * Hotspot: 23 percent. We could try caching these but then every node gets an extra field. But that makes sense
+ * in all honesty so
+ *
  * @return Word
  */
-Word TrieNode::LeafToWord() const {
-  assert(IsTerminal());
-  Word leaf_word;
-
-  const TrieNode *node = this;
-  while (node != nullptr && !node->value.IsEmpty()) {
-    Atom atom_value = node->value;
-    leaf_word.atoms_.insert(leaf_word.atoms_.begin(), atom_value);
-    node = node->parent;
-  }
-
-  return leaf_word;
+Word &TrieNode::LeafToWord() const {
+  assert(IsTerminal() && leaf_word != nullptr);
+  return *leaf_word;
 }
 
 std::string TrieNode::ReprString() const {
