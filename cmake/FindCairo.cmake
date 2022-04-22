@@ -32,7 +32,6 @@ else(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)
         endif(_pc_cairo_FOUND)
     else(NOT WIN32)
         message(STATUS "win32 detected")
-        # hard code vspkg paths?
         set(CAIRO_FOUND TRUE)
     endif(NOT WIN32)
 

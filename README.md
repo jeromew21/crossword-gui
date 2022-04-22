@@ -48,14 +48,17 @@ Not tested.
 ### Windows
 Tested in Visual Studio 2022 running on Windows 11.
 
-Set up environment variables and project to include directories
-as detailed [here](https://docs.wxwidgets.org/trunk/plat_msw_install.html#msw_build_apps):
+Recommended: use vcpkg to install Cairo and just use the installer for wxWidgets.
 
-Add AMD dpi manifest (Manifest Tool->Input and Output) ./include/wx/msw/wx_dpi_aware.manifest
+Create build directory and cd into it.
+```
+cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake
+```
+Then: Change from console application to Windows Application
 
-Add `./src` and cairo directory to include path
+Add AMD dpi manifest (Manifest Tool->Input and Output) %WX%/include/wx/msw/wx_dpi_aware.manifest
 
-Currently, CMake is broken on Windows.
+Should work properly.
 
 ## *Building (Web)
 
