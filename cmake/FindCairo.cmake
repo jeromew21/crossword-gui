@@ -19,6 +19,7 @@ if(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)
 else(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)
 
     if(NOT WIN32)
+        message(STATUS "win32 not detected, invoking PkgConfig to find Cairo")
         # use pkg-config to get the directories and then use these values
         # in the FIND_PATH() and FIND_LIBRARY() calls
         find_package(PkgConfig REQUIRED)
@@ -30,8 +31,11 @@ else(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)
             set(CAIRO_FOUND TRUE)
         endif(_pc_cairo_FOUND)
     else(NOT WIN32)
-        # assume so, for now
+        message(STATUS "win32 detected")
+        # hard code vspkg paths
         set(CAIRO_FOUND TRUE)
+        set(CAIRO_INCLUDE_DIRS "")
+        set(CAIRO_LIBRARIES "")
     endif(NOT WIN32)
 
     if(CAIRO_FOUND)
@@ -51,6 +55,10 @@ else(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)
 
         include(FindPackageHandleStandardArgs)
         find_package_handle_standard_args(Cairo DEFAULT_MSG CAIRO_LIBRARIES CAIRO_INCLUDE_DIRS)
+
+
+        message(STATUS "Cairo include directory ${CAIRO_INCLUDE_DIRS}")
+        message(STATUS "Cairo libraries ${CAIRO_INCLUDE_DIR}")
     endif(CAIRO_FOUND)
 
 endif(CAIRO_INCLUDE_DIRS AND CAIRO_LIBRARIES)

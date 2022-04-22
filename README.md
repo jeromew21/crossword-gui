@@ -55,6 +55,8 @@ Add AMD dpi manifest (Manifest Tool->Input and Output) ./include/wx/msw/wx_dpi_a
 
 Add `./src` and cairo directory to include path
 
+Currently, CMake is broken on Windows.
+
 ## *Building (Web)
 
 Not tested or built yet.

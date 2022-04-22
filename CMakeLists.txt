@@ -8,6 +8,9 @@ include_directories(${CAIRO_INCLUDE_DIRS})
 find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)
 include(${wxWidgets_USE_FILE})
 
+include_directories(src)
+include_directories(src/crossword)
+
 add_executable(crossword-gui
         src/widgets/main_entry.cpp
         src/widgets/main_window.cpp
@@ -29,6 +32,3 @@ add_executable(crossword-gui
         )
 
 target_link_libraries(crossword-gui ${wxWidgets_LIBRARIES} ${CAIRO_LIBRARIES})
-
-include_directories(src)
-include_directories(src/crossword)
