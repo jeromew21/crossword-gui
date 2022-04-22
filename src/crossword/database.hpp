@@ -66,8 +66,9 @@ namespace crossword_backend {
       return count;
     }
 
-    bool operator[](const Word &w) {
-      return map_[w];
+    bool operator[](const Word &word_partial) {
+      assert(map_.find(word_partial) != map_.end());
+      return map_[word_partial];
     }
 
     void clear() {
@@ -197,7 +198,7 @@ namespace crossword_backend {
    */
   class WordDatabase {
   public:
-    static void LoadThread(WordDatabase *db, std::string const &filename);
+    static void LoadThread(WordDatabase *db, std::string const filename);
 
     /**
      * @brief Getter for whether the database has completed loading yet.

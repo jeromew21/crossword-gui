@@ -35,6 +35,37 @@ void CrosswordApp::ErrorDialog(std::string const &message) {
 }
 
 /**
+ * @brief Load database from a CSV
+ *
+ * Adds to the current database.
+ *
+ * @param filename
+ */
+void CrosswordApp::LoadDatabaseFromCSV(const std::string &filename) {
+  crossword.logger.Log("Loading database from file \"" + filename + "\"...");
+  db.LoadDeferred(filename);
+  std::thread db_load_callback([&] {
+    if (!db.IsFinishedLoading()) {
+      db.WaitForLock();
+    }
+    crossword.logger.Log("Done loading database.");
+    UpdateGrid();
+  });
+  db_load_callback.detach();
+}
+
+void CrosswordApp::SaveToFile(const std::string &filename) {
+  std::ofstream f;
+  f.open(filename);
+  auto lines = crossword.Serialize();
+  for (std::string const &line: lines) {
+    f << line << "\n";
+  }
+  crossword.logger.Log("Wrote out to file \"" + filename + "\"");
+  open_file = filename;
+}
+
+/**
  * @brief App main window constructor
  *
  * Program starting state.
@@ -56,19 +87,10 @@ CrosswordApp::CrosswordApp(MainWindowOptions const &options)
 
   wxIcon icon(icon_xpm);
   SetIcon(icon);
-
   CentreOnScreen();
+
   if (options.db) {
-    const std::string filename = options.db_filename;
-    crossword.logger.Log("Loading database from file \"" + filename + "\"...");
-    db.LoadDeferred(filename);
-    std::thread db_load_callback([&] {
-      if (!db.IsFinishedLoading()) {
-        db.WaitForLock();
-      }
-      crossword.logger.Log("Done loading database.");
-    });
-    db_load_callback.detach();
+    LoadDatabaseFromCSV(options.db_filename);
   }
 
   SetMinSize(wxSize(200, 200));

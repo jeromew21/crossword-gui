@@ -93,6 +93,7 @@ enum {
   ID_Open = 20,
   ID_Show_Logs = 21,
   ID_Stop_Autofill = 22,
+  ID_Load_Database = 23
 };
 
 /**
@@ -193,11 +194,16 @@ private:
 
   void ExportPDF(std::string const &filename);
 
+  void SaveToFile(std::string const &filename);
+
   void UpdateGrid();
 
   bool GetRotationalSymmetry();
 
-  bool GetSpellcheck(); // TODO: make this also fire on click so we can update grid
+  void LoadDatabaseFromCSV(std::string const &filename);
+
+  bool GetSpellcheck();
+
   crossword_backend::Clue &GetCurrentClue();
 
   crossword_backend::Coord GetGridCursor();
@@ -281,6 +287,8 @@ private:
   void OnSaveAs(wxCommandEvent &event);
 
   void OnStopAutofill(wxCommandEvent &event);
+
+  void OnLoadDatabase(wxCommandEvent &event);
 
   /* Generic events */
   void OnGridCellClick(wxGridEvent &event);

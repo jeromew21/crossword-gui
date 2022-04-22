@@ -300,6 +300,7 @@ void FixedSizeWordDatabase::FlushPartialCache() {
  *
  */
 void WordDatabase::FlushCaches() {
+  const std::lock_guard<std::mutex> lock(db_lock_);
   for (std::size_t i = 0; i < kMAX_DIM; ++i) {
     databases_[i].FlushPartialCache();
   }
@@ -311,7 +312,7 @@ void WordDatabase::FlushCaches() {
  * @param db
  * @param filename
  */
-void WordDatabase::LoadThread(WordDatabase *db, std::string const &filename) {
+void WordDatabase::LoadThread(WordDatabase *db, std::string const filename) {
   const std::lock_guard<std::mutex> lock(db->db_lock_);
   db->LoadFromFile(filename);
 }
@@ -321,6 +322,7 @@ void WordDatabase::LoadThread(WordDatabase *db, std::string const &filename) {
  *
  */
 void WordDatabase::LoadDeferred(std::string const &filename) {
+  is_finished_loading_ = false;
   std::thread loader(LoadThread, this, filename);
   loader.detach();
 }

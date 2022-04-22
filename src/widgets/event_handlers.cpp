@@ -43,6 +43,10 @@ void CrosswordApp::InitMenuBar() {
           ID_Save_As,
           "&Save As...", "Save to a file");
   menuFile->AppendSeparator();
+  menuFile->Append(
+          ID_Load_Database,
+          "&Load Database...", "Add entries from CSV database");
+  menuFile->AppendSeparator();
   menuFile->Append(wxID_EXIT);
 
   menuEdit = new wxMenu;
@@ -147,6 +151,7 @@ void CrosswordApp::InitBindings() {
   Bind(wxEVT_MENU, &CrosswordApp::OnSave, this, ID_Save);
   Bind(wxEVT_MENU, &CrosswordApp::OnSaveAs, this, ID_Save_As);
   Bind(wxEVT_MENU, &CrosswordApp::OnStopAutofill, this, ID_Stop_Autofill);
+  Bind(wxEVT_MENU, &CrosswordApp::OnLoadDatabase, this, ID_Load_Database);
 
   /* Custom events */
   Bind(GRID_REFRESH, &CrosswordApp::OnGridRefresh, this);
@@ -243,7 +248,6 @@ void CrosswordApp::OnGridCellRightClick(wxGridEvent &event) {
   crossword.ToggleBarrier(Coord(event.GetRow(), event.GetCol()), GetRotationalSymmetry());
   UpdateGrid();
   SelectFirstClue();
-  UpdateGrid();
   ClearGridSelection();
 }
 
@@ -481,8 +485,6 @@ void AutofillThreadFunc(CrosswordApp *app) {
 void CrosswordApp::OnAutofill(wxCommandEvent &) {
   // TODO: disable menu bar items
 
-  // Validate we can do this
-
   if (is_searching) {
     ErrorDialog("Already searching.");
     return;
@@ -491,6 +493,13 @@ void CrosswordApp::OnAutofill(wxCommandEvent &) {
     ErrorDialog("Must be a valid puzzle in order to autofill.");
     return;
   }
+
+  // Block UI in the case that the database is still loading.
+  if (!db.IsFinishedLoading()) {
+    db.WaitForLock();
+  }
+  db.FlushCaches(); // TODO: figure out why we need this here
+
   auto all_clues = crossword.Clues();
   Solvability current_solvable_status = crossword.IsInvalidPartial(all_clues, db, 1);
   if (current_solvable_status != Solvability::Solvable) {
@@ -503,11 +512,6 @@ void CrosswordApp::OnAutofill(wxCommandEvent &) {
     else
       ErrorDialog("Cannot solve (other).");
     return;
-  }
-
-  // Block UI in the case that the database is still loading.
-  if (!db.IsFinishedLoading()) {
-    db.WaitForLock();
   }
 
   is_searching = true;
@@ -655,6 +659,20 @@ void CrosswordApp::OnExport(wxCommandEvent &) {
   ExportPDF(openFileDialog.GetPath().ToStdString());
 }
 
+void CrosswordApp::OnLoadDatabase(wxCommandEvent &event) {
+  if (is_searching)
+    return;
+
+  wxFileDialog
+          openFileDialog(this, _("Open CSV file"), "", "",
+                         "CSV files (*.csv)|*.csv", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+  if (openFileDialog.ShowModal() == wxID_CANCEL)
+    return;
+
+  std::string filename = openFileDialog.GetPath().ToStdString();
+  LoadDatabaseFromCSV(filename);
+}
+
 void CrosswordApp::OnOpen(wxCommandEvent &) {
   if (is_searching)
     return;
@@ -689,8 +707,11 @@ void CrosswordApp::OnOpen(wxCommandEvent &) {
 void CrosswordApp::OnSave(wxCommandEvent &) {
   if (is_searching)
     return;
-  // save current working file as field
-  // write out
+  crossword.logger.Log(open_file);
+  if (!open_file.empty())
+    SaveToFile(open_file);
+  else
+    crossword.logger.Log("No open file");
 }
 
 void CrosswordApp::OnSaveAs(wxCommandEvent &) {
@@ -704,16 +725,8 @@ void CrosswordApp::OnSaveAs(wxCommandEvent &) {
     return;
 
   // save the current contents in the file
-  std::ofstream f;
   std::string filename = saveFileDialog.GetPath().ToStdString();
-  f.open(filename);
-  auto lines = crossword.Serialize();
-  for (std::string const &line: lines) {
-    f << line << "\n";
-  }
-  crossword.logger.Log("Wrote out to file \"" + filename + "\"");
-
-  open_file = filename;
+  SaveToFile(filename);
 }
 
 void CrosswordApp::OnStopAutofill(wxCommandEvent &) {
