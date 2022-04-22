@@ -277,11 +277,12 @@ FixedSizeWordDatabase::GetSolutions(Clue const &clue, const int limit, const int
 //      break;
 //  }
 //  return vec;
-  std::vector<Word> all_solutions = trie_.Find(clue.ToWord());
+  const Word clue_partial = clue.ToWord();
+  std::vector<Word> all_solutions = trie_.Find(clue_partial);
   std::vector<Word> passing_solutions{};
 
   for (auto const &solution_word : all_solutions) {
-    if (GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);
+    if (true || GetFrequencyScore(solution_word) >= score_min) passing_solutions.push_back(solution_word);
   }
 
   return passing_solutions;

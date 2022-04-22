@@ -20,14 +20,16 @@ void WordTrie::Insert(Word const &entry) {
     if (child != nullptr) {
       node = child;
     } else {
-      node->AddChild(letter);
+      node = node->AddChild(letter);
     }
   }
 }
 
-void TrieNode::AddChild(const Atom child_value) {
+TrieNode* TrieNode::AddChild(const Atom child_value) {
   assert(FindChild(child_value) == nullptr);
-  children.push_back(std::make_unique<TrieNode>(child_value, this));
+  TrieNode* new_node = new TrieNode(child_value, this);
+  children.push_back(std::unique_ptr<TrieNode>(new_node));
+  return new_node;
 }
 
 TrieNode *TrieNode::FindChild(const Atom queried_child) const {
@@ -43,17 +45,16 @@ TrieNode *TrieNode::FindChild(const Atom queried_child) const {
 std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) const {
   assert(substr_start < partial.size()); // OOB would be problematic...
 
-
-  const Atom current_atom = partial[substr_start];
+  const Atom target_child = partial[substr_start];
   if (substr_start == partial.size() - 1) {
-    if (current_atom.IsEmpty()) { // If final character is wildcard, just push everything
+    if (target_child.IsEmpty()) { // If final character is wildcard, just push everything
       std::vector<Word> result{};
       for (const auto &child_leaf_ptr: children) {
         result.push_back(child_leaf_ptr->LeafToWord());
       }
       return result;
     } else {
-      TrieNode *child = FindChild(current_atom);
+      TrieNode *child = FindChild(target_child);
       if (child == nullptr) return {}; // not found in children
       std::vector<Word> result{};
       result.push_back(child->LeafToWord());
@@ -61,7 +62,7 @@ std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) 
     }
   }
 
-  if (current_atom.IsEmpty()) { // If current is wildcard, push everything
+  if (target_child.IsEmpty()) { // If current is wildcard, push everything
     std::vector<Word> result{};
     for (const auto &child_ptr: children) {
       std::vector<Word> child_solutions = child_ptr->Find(partial, substr_start + 1);
@@ -69,7 +70,7 @@ std::vector<Word> TrieNode::Find(const Word &partial, std::size_t substr_start) 
     }
     return result;
   } else { // Otherwise, just push subtree.
-    TrieNode *child = FindChild(current_atom);
+    TrieNode *child = FindChild(target_child);
     if (child == nullptr) return {};
     std::vector<Word> result{};
     return child->Find(partial, substr_start + 1);

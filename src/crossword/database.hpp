@@ -36,7 +36,7 @@ namespace crossword_backend {
     std::vector<std::unique_ptr<TrieNode>> children;
     TrieNode *parent;
 
-    void AddChild(const Atom child_value);
+    TrieNode *AddChild(const Atom child_value);
 
     TrieNode *FindChild(const Atom queried_child) const;
 
