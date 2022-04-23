@@ -24,7 +24,7 @@ Logger::Logger() : silent(false), start_time_{std::chrono::high_resolution_clock
  *
  * @return std::vector<std::string> const& 
  */
-std::vector<std::string> const &Logger::GetLogs() {
+[[maybe_unused]] std::vector<std::string> const &Logger::GetLogs() {
   return history_;
 }
 
@@ -58,7 +58,7 @@ void Logger::Log(std::string const &val) {
  *
  * @param val
  */
-void Logger::DebugLog(std::string const &val) {
+[[maybe_unused]] void Logger::DebugLog(std::string const &val) {
   std::string log_message = "[DEBUG " + time_offset() + "] " + val;
   if (!silent) {
     const std::lock_guard<std::mutex> lock(mutex_);

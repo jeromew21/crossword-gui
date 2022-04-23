@@ -18,7 +18,7 @@
 #include <memory>
 #include <iostream>
 #include <mutex>
-#include <assert.h>
+#include <cassert>
 
 #include "crossword/logging.hpp"
 #include "crossword/base.hpp"
@@ -36,23 +36,23 @@ namespace crossword_backend {
    * @brief Object representing the state of a crossword grid cell.
    *
    */
-  class Cell : public Obj {
+  class Cell {
   public:
-    Atom GetContents() const;
+    [[nodiscard]] Atom GetContents() const;
 
-    bool IsBarrier() const;
+    [[nodiscard]] bool IsBarrier() const;
 
-    bool IsLocked() const;
+    [[nodiscard]] bool IsLocked() const;
 
-    void SetBarrier(const bool val);
+    void SetBarrier(bool val);
 
-    void SetContents(const Atom atom);
+    void SetContents(Atom atom);
 
-    void Lock(const bool value);
+    void Lock(bool value);
 
-    std::string ToString() const;
+    [[nodiscard]] std::string ToString() const;
 
-    std::string ReprString() const;
+    [[maybe_unused]] [[nodiscard]] std::string ReprString() const;
 
     /**
      * @brief Construct a new Cell object.
@@ -158,14 +158,14 @@ namespace crossword_backend {
      * @brief Default constructor.
      *
      */
-    ClueStructure() : dirty(true) {};
+    ClueStructure() : numberings{}, dirty(true) {};
   };
 
   /**
    * @brief Class representing a single crossword puzzle.
    *
    */
-  class Crossword : public Obj {
+  class Crossword {
   public:
     /**
      * @brief Owned logging object.
@@ -190,19 +190,19 @@ namespace crossword_backend {
 
     void StopAutofill();
 
-    std::vector<CrosswordActionGroup *>
+    [[nodiscard]] std::vector<CrosswordActionGroup *>
     GetWordFills(std::vector<Clue> const &all_clues, AutofillParams const &params) const;
 
     bool IsSolved(std::vector<Clue> const &all_clues, WordDatabase &db) const;
 
-    Solvability IsInvalidPartial(std::vector<Clue> const &all_clues, WordDatabase &db, const int score_min) const;
+    Solvability IsInvalidPartial(std::vector<Clue> const &all_clues, WordDatabase &db, int score_min) const;
 
     /* Action methods (stack changers) */
     bool Undo();
 
     bool Redo();
 
-    void Set(const Atom val, const Coord coord);
+    void Set(Atom val, Coord coord);
 
     void SetClue(Clue const &clue, Word const &word);
 
@@ -211,68 +211,68 @@ namespace crossword_backend {
     void ClearClue(Clue const &clue);
 
     /* Parameter methods (might be annoying to interact with stack, TODO: implement) */
-    void SetBarrier(const bool val, const Coord coord, const bool enforce_symmetry);
+    void SetBarrier(bool val, Coord coord, bool enforce_symmetry);
 
-    void SetDimensions(const std::size_t height, const std::size_t width);
+    void SetDimensions(std::size_t height, std::size_t width);
 
-    void LockCell(const Coord coord, const bool value);
+    void LockCell(Coord coord, bool value);
 
-    void ToggleBarrier(const Coord coord, const bool enforce_symmetry);
+    void ToggleBarrier(Coord coord, bool enforce_symmetry);
 
-    void ToggleLockCell(const Coord coord);
+    void ToggleLockCell(Coord coord);
 
     /* Fundamental action methods that don't affect stack */
-    void Set_(const Atom val, const Coord coord);
+    void Set_(Atom val, Coord coord);
 
     /* Const getters */
-    bool IsFilled(const Coord coord) const;
+    [[nodiscard]] bool IsFilled(Coord coord) const;
 
-    bool IsLocked(const Coord coord) const;
+    [[nodiscard]] bool IsLocked(Coord coord) const;
 
-    bool InBounds(const Coord coord) const;
+    [[nodiscard]] bool InBounds(Coord coord) const;
 
-    bool IsValidPattern() const;
+    [[nodiscard]] bool IsValidPattern() const;
 
-    Cell Get(const Coord coord) const;
+    [[nodiscard]] Cell Get(Coord coord) const;
 
-    Cell Get(const std::size_t row, const std::size_t col) const;
+    [[nodiscard]] Cell Get(std::size_t row, std::size_t col) const;
 
-    std::string ReprString() const;
+    [[maybe_unused]] [[nodiscard]] std::string ReprString() const;
 
     /**
      * @brief Get the height of the crossword grid.
      *
      */
-    std::size_t GetHeight() const { return height_; };
+    [[nodiscard]] std::size_t GetHeight() const { return height_; };
 
     /**
      * @brief Get the width of the crossword grid.
      *
      */
-    std::size_t GetWidth() const { return width_; };
+    [[nodiscard]] std::size_t GetWidth() const { return width_; };
 
     /* Cached clues */
-    std::vector<Clue> const &Clues() const;
+    [[nodiscard]] std::vector<Clue> const &Clues() const;
 
-    std::vector<Clue> CluesStartingAt(const Coord coord) const;
+    [[nodiscard]] std::vector<Clue> CluesStartingAt(Coord coord) const;
 
-    ClueNumber GetClueNumber(const Coord coord) const;
+    [[nodiscard]] ClueNumber GetClueNumber(Coord coord) const;
 
     /* Hint-related TODO: make private certain overloads and cleanup API */
-    std::string GetHint(const ClueNumber num, const WordDirection direction) const;
+    [[nodiscard]] std::string GetHint(ClueNumber num, WordDirection direction) const;
 
-    std::string GetHint(const Coord coord, const WordDirection direction) const;
+    [[nodiscard]] std::string GetHint(Coord coord, WordDirection direction) const;
 
-    std::string GetHint(Clue const &clue) const;
+    [[nodiscard]] std::string GetHint(Clue const &clue) const;
 
     void SetHint(Clue const &clue, std::string const &hint);
 
-    void SetHint(const ClueNumber num, const WordDirection direction, std::string const &hint);
+    [[maybe_unused]] void SetHint(ClueNumber num, WordDirection direction, std::string const &hint);
 
-    void SetHint(const Coord coord, const WordDirection direction, std::string const &hint);
+    void SetHint(Coord coord, WordDirection direction, std::string const &hint);
 
     /* Import/Export related */
-    std::vector<std::string> Serialize() const;
+    [[nodiscard]] std::vector<std::string> Serialize() const;
 
     void Unserialize(std::vector<std::string> &lines);
 
@@ -335,17 +335,17 @@ namespace crossword_backend {
     void DirtyClueStructure();
 
     /* Raw clue calculation methods */
-    std::vector<Clue> Clues_() const;
+    [[nodiscard]] std::vector<Clue> Clues_() const;
 
     std::vector<Clue *> CluesStartingAt_(std::vector<Clue> &all_clues, Coord coord) const;
 
-    ClueNumber GetClueNumber_(std::vector<Clue> &all_clues, const Coord coord) const;
+    ClueNumber GetClueNumber_(std::vector<Clue> &all_clues, Coord coord) const;
 
     void ApplyAction(CrosswordAction *action);
 
-    Coord GetRotationalPair(const Coord coord) const;
+    [[nodiscard]] Coord GetRotationalPair(Coord coord) const;
 
-    std::vector<Clue> UnfilteredClues(const WordDirection direction) const;
+    [[nodiscard]] std::vector<Clue> UnfilteredClues(WordDirection direction) const;
   };
 
 }

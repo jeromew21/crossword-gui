@@ -39,21 +39,21 @@ namespace crossword_backend {
     TrieNode *parent;
     Word *leaf_word;
 
-    TrieNode *AddChild(const Atom child_value);
+    TrieNode *AddChild(Atom child_value);
 
-    TrieNode *FindChild(const Atom queried_child) const;
+    [[nodiscard]] TrieNode *FindChild(Atom queried_child) const;
 
-    bool IsTerminal() const { return children.empty(); }
+    [[nodiscard]] bool IsTerminal() const { return children.empty(); }
 
-    Word &LeafToWord() const;
+    [[nodiscard]] Word &LeafToWord() const;
 
-    std::vector<Word> Find(Word const &partial, std::size_t substr_start) const;
+    [[nodiscard]] std::vector<Word> Find(Word const &partial, std::size_t substr_start) const;
 
-    bool Contains(const Word &partial, std::size_t substr_start) const;
+    [[nodiscard]] bool Contains(const Word &partial, std::size_t substr_start) const;
 
-    std::string ReprString() const;
+    [[nodiscard]] std::string ReprString() const;
 
-    explicit TrieNode(const Atom value, TrieNode *parent) : value{value}, parent{parent} {
+    explicit TrieNode(Atom value, TrieNode *parent) : value{value}, parent{parent} {
       leaf_word = new Word();
 
       Word traversed_word;
@@ -75,22 +75,22 @@ namespace crossword_backend {
    * from wildcard words.
    * 
    */
-  class WordTrie : public Obj {
+  class WordTrie {
   public:
     std::unique_ptr<TrieNode> root;
 
-    void Insert(Word const &entry);
+    void Insert(Word const &entry) const;
 
-    std::vector<Word> Find(Word const &partial) const { return root->Find(partial, 0); }
+    [[nodiscard]] std::vector<Word> Find(Word const &partial) const { return root->Find(partial, 0); }
 
     /**
      * @brief Quickly find if a word has no solution in the trie.
      * @param partial
      * @return
      */
-    bool Contains(Word const &partial) const { return root->Contains(partial, 0); }
+    [[nodiscard]] bool Contains(Word const &partial) const { return root->Contains(partial, 0); }
 
-    std::string ReprString() const override {
+    [[maybe_unused]] [[nodiscard]] std::string ReprString() const {
       return root->ReprString();
     };
 
@@ -102,9 +102,11 @@ namespace crossword_backend {
    *
    * Contains partial words. TODO: eviction policy.
    *
+   * TODO: do we even need this w/ trie
+   *
    */
   struct WordHashMap {
-    int count(const Word &w) {
+    std::size_t count(const Word &w) {
       std::size_t count = map_.count(w);
       if (count == 0) {
         misses++;
@@ -193,11 +195,11 @@ namespace crossword_backend {
    */
   class FixedSizeWordDatabase {
   public:
-    std::vector<Word> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
+    std::vector<Word> GetSolutions(Clue const &clue, int limit, int score_min) const;
 
-    void AddEntry(Word const &entry, const int frequency_score, const int letter_score);
+    void AddEntry(Word const &entry, int frequency_score, int letter_score);
 
-    bool HasSolution(Clue const &clue, const int score_min);
+    bool HasSolution(Clue const &clue, int score_min);
 
     bool ContainsEntry(Word const &word) const;
 
@@ -253,7 +255,7 @@ namespace crossword_backend {
    */
   class WordDatabase {
   public:
-    static void LoadThread(WordDatabase *db, std::string const filename);
+    static void LoadThread(WordDatabase *db, std::string filename);
 
     /**
      * @brief Getter for whether the database has completed loading yet.
@@ -265,11 +267,11 @@ namespace crossword_backend {
 
     void WaitForLock();
 
-    void AddEntry(Word const &entry, const int frequency_score, const int letter_score);
+    void AddEntry(Word const &entry, int frequency_score, int letter_score);
 
     bool ContainsEntry(Word const &word) const;
 
-    bool HasSolution(Clue const &clue, const int score_min);
+    bool HasSolution(Clue const &clue, int score_min);
 
     int GetFrequencyScore(Word const &word) const;
 
@@ -281,7 +283,7 @@ namespace crossword_backend {
 
     void FlushCaches();
 
-    std::vector<Word> GetSolutions(Clue const &clue, const int limit, const int score_min) const;
+    std::vector<Word> GetSolutions(Clue const &clue, int limit, int score_min) const;
 
     WordDatabase();
 

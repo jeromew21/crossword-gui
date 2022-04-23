@@ -33,9 +33,9 @@ namespace crossword_backend {
 
     void Log(std::string const &val);
 
-    void DebugLog(std::string const &val);
+    [[maybe_unused]] void DebugLog(std::string const &val);
 
-    std::vector<std::string> const &GetLogs();
+    [[maybe_unused]] std::vector<std::string> const &GetLogs();
 
     Logger();
 
@@ -71,13 +71,5 @@ namespace crossword_backend {
     std::mutex mutex_;
   };
 }
-
-/**
- * @brief Log a particular expression to stdout
- * with both the expression itself and its value.
- *
- */
-#define LOGEXPR(variable) \
-    std::cout << #variable << " = " << variable << "\n";
 
 #endif

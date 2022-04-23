@@ -220,7 +220,7 @@ private:
   void ResetGridColors();
 
   /* Message methods */
-  void ErrorDialog(std::string const &message);
+  static void ErrorDialog(std::string const &message);
 
   /* Grid methods */
   void ResizeGrid(int height, int width);

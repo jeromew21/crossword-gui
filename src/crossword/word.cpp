@@ -46,7 +46,7 @@ std::string Word::ToString() const {
  *
  * @return std::string
  */
-std::string Word::ReprString() const {
+[[maybe_unused]] std::string Word::ReprString() const {
   return "Word{" + ToString() + "}";
 }
 

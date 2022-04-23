@@ -13,7 +13,12 @@
 
 using namespace crossword_backend;
 
-void WordTrie::Insert(Word const &entry) {
+/**
+ * Insert a word into the trie.
+ *
+ * @param entry
+ */
+void WordTrie::Insert(Word const &entry) const {
   TrieNode *node = root.get();
   for (auto const letter: entry.atoms_) {
     TrieNode *child = node->FindChild(letter);
@@ -27,7 +32,7 @@ void WordTrie::Insert(Word const &entry) {
 
 TrieNode *TrieNode::AddChild(const Atom child_value) {
   assert(FindChild(child_value) == nullptr);
-  TrieNode *new_node = new TrieNode(child_value, this);
+  auto *new_node = new TrieNode(child_value, this);
   children.push_back(std::unique_ptr<TrieNode>(new_node));
   return new_node;
 }
@@ -42,6 +47,13 @@ TrieNode *TrieNode::FindChild(const Atom queried_child) const {
   return nullptr;
 }
 
+/**
+ * @brief Recursively check whether a word is contained in the trie.
+ *
+ * @param partial
+ * @param substr_start
+ * @return
+ */
 bool TrieNode::Contains(const Word &partial, std::size_t substr_start) const {
   assert(substr_start < partial.size()); // OOB would be problematic...
 

@@ -193,7 +193,7 @@ bool Clue::FitsWord(Word const &word) const {
  *
  * @return std::string
  */
-std::string Clue::ReprString() const {
+[[maybe_unused]] std::string Clue::ReprString() const {
   std::ostringstream s;
   s << "Clue{id=" << clue_number_ << ", ";
   s << "start=" << start_.ReprString() << ", size=" << size_;
@@ -265,7 +265,7 @@ int Clue::IndexOfCoord(const Coord coord) const {
  * @return true
  * @return false
  */
-bool Clue::IsEmpty() const {
+[[maybe_unused]] bool Clue::IsEmpty() const {
   return GetOpenSpots() == size_;
 }
 

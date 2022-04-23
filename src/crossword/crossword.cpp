@@ -46,7 +46,7 @@ std::string Crossword::ReprString() const {
       Cell cell = Get(i, j);
       if (cell.IsBarrier()) {
         s += "=";
-      } else if (cell.ToString() == "") {
+      } else if (cell.ToString().empty()) {
         s += " ";
       } else {
         s += cell.ToString();
@@ -139,7 +139,7 @@ void Crossword::SetHint(const Coord coord, const WordDirection direction, std::s
  * @param direction
  * @param hint
  */
-void Crossword::SetHint(const ClueNumber num, const WordDirection direction, std::string const &hint) {
+[[maybe_unused]] void Crossword::SetHint(const ClueNumber num, const WordDirection direction, std::string const &hint) {
   std::vector<Clue> clues = Clues();
   for (auto it = std::begin(clues); it != std::end(clues); ++it) {
     if (it->GetNumber() == num && it->GetDirection() == direction) {

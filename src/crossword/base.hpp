@@ -66,34 +66,6 @@ namespace crossword_backend {
   constexpr int kNO_NUMBER = -1;
 
   /**
-   * @brief Base class. Has methods related to string conversion and debugging.
-   *
-   * TODO: remove this; we don't want to sacrifice an iota of performance w/ vtables
-   *
-   */
-  class Obj {
-  public:
-    /**
-     * @brief Debug representation of an object.
-     *
-     * @return std::string
-     */
-    virtual std::string ReprString() const = 0;
-
-    /**
-     * @brief Overloading the << operator for an object so it can be printed directly.
-     *
-     * @param os
-     * @param self
-     * @return std::ostream&
-     */
-    friend std::ostream &operator<<(std::ostream &os, const Obj &self) {
-      os << self.ReprString();
-      return os;
-    }
-  };
-
-  /**
    * @brief A 2-tuple representing the coordinates of an array of rows indexed by (row, col).
    *
    * The upper left is (0, 0) and the bottom right is (n-1, n-1).
@@ -115,7 +87,7 @@ namespace crossword_backend {
      *
      * @return std::string
      */
-    std::string ReprString() const { return "(" + std::to_string(row) + ", " + std::to_string(col) + ")"; };
+    [[nodiscard]] std::string ReprString() const { return "(" + std::to_string(row) + ", " + std::to_string(col) + ")"; };
 
     /**
      * @brief Construct a new Coord object from given indices.

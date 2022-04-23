@@ -19,12 +19,6 @@
 using namespace crossword_backend;
 
 /**
- * @brief Main window title
- *
- */
-const std::string MAIN_WINDOW_TITLE = "Crossword Editor";
-
-/**
  * @brief Show an error message to the user.
  *
  * @param message
@@ -73,9 +67,9 @@ void CrosswordApp::SaveToFile(const std::string &filename) {
  */
 CrosswordApp::CrosswordApp(MainWindowOptions const &options)
         : wxFrame(
-        NULL,
+        nullptr,
         wxID_ANY,
-        MAIN_WINDOW_TITLE,
+        "Crossword Editor",
         wxPoint(-1, -1),
         wxSize(600, 800)),
           crossword{}, selected{0, 0},
@@ -152,7 +146,7 @@ void CrosswordApp::ClickCell(Coord click_coords) {
   SetGridCursor(click_coords);
   Clue saved_clue = current_clue;
   std::vector<Clue> clues = crossword.CluesStartingAt(click_coords);
-  if (clues.size() == 0)
+  if (clues.empty())
     return;
   Clue clue = clues[0];
   if (clues.size() == 2 && clue.SameCoords(saved_clue)) {
@@ -172,12 +166,12 @@ void CrosswordApp::ClickCell(Coord click_coords) {
  * @brief Selects the upper-left-most clue.
  *
  * Called upon initialization and when the barrier pattern is changed.
- * No gurantees on whether this is ACROSS or DOWN.
+ * No guarantees on whether this is ACROSS or DOWN.
  *
  */
 void CrosswordApp::SelectFirstClue() {
   std::vector<Clue> clues = crossword.Clues();
-  assert(clues.size() > 0); // should fail when we have too restrictive a pattern
+  assert(!clues.empty()); // should fail when we have too restrictive a pattern
   ClickCell(clues[0].GetStart());
 }
 
@@ -192,11 +186,11 @@ void CrosswordApp::SelectFirstClue() {
 Clue &CrosswordApp::GetCurrentClue() {
   if (crossword.InBounds(current_clue.GetStart())) {
     std::vector<Clue> clues = crossword.CluesStartingAt(current_clue.GetStart());
-    assert(clues.size() != 0);
+    assert(!clues.empty());
 
-    for (int i = 0; i < (int) clues.size(); i++) {
-      if (current_clue.SameCoords(clues[i])) {
-        current_clue = clues[i];
+    for (auto const &cl : clues) {
+      if (current_clue.SameCoords(cl)) {
+        current_clue = cl;
         break;
       }
     }
@@ -212,7 +206,7 @@ void CrosswordApp::DeleteOne() {
   crossword.Set(Atom(), selected);
   Clue clue = GetCurrentClue();
   int i = clue.IndexOfCoord(selected);
-  if (i != kNO_NUMBER && i > 0) {
+  if (i > 0) {
     SetGridCursor(clue.coord_list_[i - 1]);
   }
   UpdateGrid();
