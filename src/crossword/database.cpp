@@ -40,6 +40,8 @@ static const std::array<const double, kATOM_COUNT> ATOM_SCORES = {
 /**
  * @brief Return true if the clue (partially filled) exists in the database, with score greater or equal to score_min.
  *
+ * TODO: this code is incorrect as we ignore the score_min parameter; needs to hit the map
+ *
  * @param clue
  * @param score_min
  * @return true
@@ -61,15 +63,6 @@ bool FixedSizeWordDatabase::HasSolution(Clue const &clue, const int score_min) {
     partial_word_cache_.insert(clue_partial, false);
     return false;
   }
-
-//  for (auto it = std::begin(entries_); it != std::end(entries_); ++it) {
-//    if (it->frequency_score >= score_min && clue.FitsWord(it->entry)) {
-//      partial_word_cache_.insert(clue_partial, true);
-//      return true;
-//    }
-//  }
-//  partial_word_cache_.insert(clue_partial, false);
-//  return false;
 }
 
 /**
