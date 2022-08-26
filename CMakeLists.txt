@@ -45,9 +45,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmtlib)
 
 
-
-
 add_subdirectory(crossword-lib)
+add_subdirectory(crossword-gui)
 
 # Testing only available if this is the main app
 # Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
