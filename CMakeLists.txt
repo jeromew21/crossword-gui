@@ -1,33 +1,57 @@
-cmake_minimum_required(VERSION 3.13)  # CMake version check
-project(CrosswordGui)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+# https://gitlab.com/CLIUtils/modern-cmake/-/blob/master/examples/extended-project/CMakeLists.txt
 
-find_package(Cairo)
-include_directories(${CAIRO_INCLUDE_DIRS})
+cmake_minimum_required(VERSION 3.14...3.23)
 
-find_package(wxWidgets REQUIRED gl core base OPTIONAL_COMPONENTS net)
-include(${wxWidgets_USE_FILE})
+project(
+    crossword-gui
+	VERSION 1.0.0
+	LANGUAGES CXX)
 
-include_directories(src)
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    # Let's ensure -std=c++xx instead of -std=g++xx
+    set(CMAKE_CXX_EXTENSIONS OFF)
+    
 
-add_executable(crossword-gui
-        src/widgets/main_entry.cpp
-        src/widgets/main_window.cpp
-        src/widgets/grid.cpp
-        src/widgets/drawing.cpp
-        src/widgets/event_handlers.cpp
-        src/widgets/dialog.cpp
-        src/widgets/cell_renderer.cpp
+    # Let's nicely support folders in IDEs
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-        src/crossword/cell.cpp
-        src/crossword/clue.cpp
-        src/crossword/word.cpp
-        src/crossword/crossword_action.cpp
-        src/crossword/crossword_serialization.cpp
-        src/crossword/database.cpp
-        src/crossword/trie.cpp
-        src/crossword/logging.cpp
-        src/crossword/search.cpp
-        src/crossword/crossword.cpp)
+    # Testing only available if this is the main app
+    # Note this needs to be done in the main CMakeLists
+    # since it calls enable_testing, which must be in the
+    # main CMakeLists.
+    include(CTest)
 
-target_link_libraries(crossword-gui ${wxWidgets_LIBRARIES} ${CAIRO_LIBRARIES})
+    # Docs only available if this is the main app
+    # find_package(Doxygen)
+    # if(Doxygen_FOUND)
+    #     add_subdirectory(docs)
+    # else()
+    #     message(STATUS "Doxygen not found, not building docs")
+    # endif()
+endif()
+
+# set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+# set( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS}  -fPIC" )
+# set( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -fPIC" )
+
+
+include(FetchContent)
+
+FetchContent_Declare(
+    fmtlib
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG        8.1.1
+)
+FetchContent_MakeAvailable(fmtlib)
+
+
+
+
+add_subdirectory(crossword-lib)
+
+# Testing only available if this is the main app
+# Emergency override MODERN_CMAKE_BUILD_TESTING provided as well
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR MODERN_CMAKE_BUILD_TESTING)
+   AND BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
